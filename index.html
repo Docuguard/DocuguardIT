@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="docuguardIT - Digital tools to help your business succeed. Amplify your strengths with customized solutions that give you a competitive edge.">
-    <title>docuguardIT | Amplify Your Strengths</title>
+    <meta name="description" content="docuguardIT - Customized document redaction solutions to protect your sensitive data. Our tailored approach gives your business the security edge it needs.">
+    <title>docuguardIT | Smart Document Redaction Solutions</title>
     <style>
         :root {
             --primary-color: #2673e5;
             --secondary-color: #11a3a3;
             --dark-color: #333;
             --light-color: #f8f9fa;
+            --accent-color: #ff6b6b;
             --transition: all 0.3s ease;
         }
         
@@ -106,6 +107,17 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+            color: white;
+        }
+        
         section {
             padding: 80px 0;
         }
@@ -138,8 +150,77 @@
             color: #666;
         }
         
-        .benefits {
+        .what-we-do {
             background-color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .what-we-do::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+            opacity: 0.05;
+            border-radius: 50%;
+            transform: translate(150px, -150px);
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+        
+        .image-container {
+            position: relative;
+        }
+        
+        .redaction-image {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .feature-list {
+            list-style: none;
+            margin-top: 30px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .feature-icon {
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .feature-text {
+            flex: 1;
+        }
+        
+        .feature-text h4 {
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+        }
+        
+        .benefits {
+            background-color: var(--light-color);
         }
         
         .section-title {
@@ -147,6 +228,17 @@
             margin-bottom: 60px;
             font-size: 2.5rem;
             color: var(--dark-color);
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            margin-top: -40px;
+            margin-bottom: 60px;
+            color: #666;
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .benefits-container {
@@ -161,6 +253,9 @@
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             transition: var(--transition);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
         
         .benefit-card:hover {
@@ -177,6 +272,128 @@
         h3 {
             margin-bottom: 15px;
             font-size: 1.5rem;
+        }
+        
+        .process {
+            background-color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .process::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+            opacity: 0.05;
+            border-radius: 50%;
+            transform: translate(-150px, 150px);
+        }
+        
+        .process-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .process-steps::before {
+            content: "";
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            right: 40px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+            z-index: 1;
+        }
+        
+        .step {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 25%;
+        }
+        
+        .step-number {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            border: 4px solid var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .testimonials {
+            background-color: var(--light-color);
+        }
+        
+        .testimonial-card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .testimonial-card::before {
+            content: """;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 5rem;
+            color: rgba(0,0,0,0.05);
+            font-family: serif;
+        }
+        
+        .client-info {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+        
+        .client-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .client-details h4 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        
+        .client-details p {
+            margin: 0;
+            color: #888;
+            font-size: 0.9rem;
         }
         
         .contact {
@@ -202,7 +419,7 @@
             font-weight: 500;
         }
         
-        input, textarea {
+        input, textarea, select {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -215,6 +432,23 @@
             min-height: 150px;
         }
         
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .checkbox-item input {
+            width: auto;
+        }
+        
         footer {
             background-color: var(--dark-color);
             color: white;
@@ -222,10 +456,76 @@
             text-align: center;
         }
         
-        /* Responsive Design */
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+        
+        /* Modified hamburger menu for mobile */
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+        }
+        
+        .hamburger span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: var(--dark-color);
+            transition: var(--transition);
+        }
+        
+        /* Media queries for responsive design */
+        @media (max-width: 992px) {
+            .process-steps::before {
+                left: 20px;
+                right: 20px;
+            }
+            
+            .step-number {
+                width: 60px;
+                height: 60px;
+                font-size: 1.4rem;
+            }
+        }
+        
         @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+            
             .nav-links {
+                position: fixed;
+                top: 100px;
+                left: 0;
+                right: 0;
+                background-color: white;
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 0;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                gap: 15px;
                 display: none;
+            }
+            
+            .nav-links.active {
+                display: flex;
             }
             
             h1 {
@@ -239,6 +539,47 @@
             .hero {
                 padding-top: 120px;
             }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .image-container {
+                order: -1;
+            }
+            
+            .process-steps {
+                flex-direction: column;
+                gap: 30px;
+                align-items: flex-start;
+            }
+            
+            .process-steps::before {
+                top: 40px;
+                bottom: 40px;
+                left: 40px;
+                width: 4px;
+                height: auto;
+            }
+            
+            .step {
+                flex-direction: row;
+                text-align: left;
+                width: 100%;
+                padding-left: 100px;
+            }
+            
+            .step-number {
+                position: absolute;
+                left: 0;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .checkbox-group {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
@@ -248,10 +589,10 @@
             <nav>
                 <div class="logo-container">
                     <svg height="60" width="60" viewBox="0 0 400 400">
-                        <!-- Main diamond/square shape - 20% larger -->
+                        <!-- Main diamond/square shape -->
                         <path d="M200,20 L380,200 L200,380 L20,200 Z" fill="none" stroke="url(#gradient)" stroke-width="6" />
                         
-                        <!-- Four corner diamonds/squares - positioned at corners of larger main diamond -->
+                        <!-- Four corner diamonds/squares -->
                         <rect x="170" y="-10" width="60" height="60" fill="none" stroke="url(#gradient)" stroke-width="6" transform="rotate(45, 200, 20)" />
                         <rect x="350" y="170" width="60" height="60" fill="none" stroke="url(#gradient)" stroke-width="6" transform="rotate(45, 380, 200)" />
                         <rect x="170" y="350" width="60" height="60" fill="none" stroke="url(#gradient)" stroke-width="6" transform="rotate(45, 200, 380)" />
@@ -266,12 +607,19 @@
                     </svg>
                     <div>
                         <div class="logo-text">docuguardIT</div>
-                        <div class="tagline">AMPLIFY YOUR STRENGTHS</div>
+                        <div class="tagline">SECURE YOUR SENSITIVE DATA</div>
                     </div>
                 </div>
                 <div class="nav-links">
+                    <a href="#what-we-do">Solutions</a>
                     <a href="#benefits">Benefits</a>
+                    <a href="#process">Our Approach</a>
                     <a href="#contact">Contact</a>
+                </div>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
                 </div>
             </nav>
         </div>
@@ -280,31 +628,155 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1>Digital Tools That Amplify Your Business</h1>
-                <p class="lead">Welcome to docuguardIT – where we create customized digital solutions that leverage your unique strengths and give you the competitive edge in today's fast-paced business environment.</p>
-                <a href="#contact" class="btn">Get Started</a>
+                <h1>Document Redaction, Tailored To Your Needs</h1>
+                <p class="lead">Welcome to docuguardIT – where we create customized redaction solutions that protect your sensitive data while preserving document integrity. Our tailored approach gives your business the security edge it needs in today's data-driven world.</p>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <a href="#what-we-do" class="btn">Explore Solutions</a>
+                    <a href="#contact" class="btn btn-outline">Get Your Custom Solution</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="what-we-do" id="what-we-do">
+        <div class="container">
+            <h2 class="section-title">Smart Document Redaction</h2>
+            <div class="content-grid">
+                <div>
+                    <p>At docuguardIT, we specialize in intelligent document redaction solutions that protect sensitive information while maintaining document usability. Unlike one-size-fits-all approaches, our software is built around your specific requirements.</p>
+                    
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <div class="feature-icon">🔍</div>
+                            <div class="feature-text">
+                                <h4>Pattern Recognition</h4>
+                                <p>Our software identifies sensitive patterns like SSNs, credit card numbers, and phone numbers automatically.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">🔒</div>
+                            <div class="feature-text">
+                                <h4>Custom Field Redaction</h4>
+                                <p>Define specific data fields unique to your business that should be protected across all documents.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">⚙️</div>
+                            <div class="feature-text">
+                                <h4>Client-Specific Rules</h4>
+                                <p>Create redaction protocols for individual clients, ensuring precise compliance with their privacy requirements.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">📄</div>
+                            <div class="feature-text">
+                                <h4>Batch Processing</h4>
+                                <p>Efficiently process thousands of documents while maintaining consistent redaction standards.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="image-container">
+                    <!-- Using a placeholder image that represents document redaction -->
+                    <svg class="redaction-image" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="50" y="50" width="400" height="300" rx="10" fill="#fff" stroke="#ddd" stroke-width="2"/>
+                        
+                        <!-- Document lines -->
+                        <line x1="100" y1="90" x2="400" y2="90" stroke="#eee" stroke-width="2"/>
+                        <line x1="100" y1="120" x2="400" y2="120" stroke="#eee" stroke-width="2"/>
+                        <line x1="100" y1="150" x2="400" y2="150" stroke="#eee" stroke-width="2"/>
+                        <line x1="100" y1="180" x2="400" y2="180" stroke="#eee" stroke-width="2"/>
+                        <line x1="100" y1="210" x2="400" y2="210" stroke="#eee" stroke-width="2"/>
+                        <line x1="100" y1="240" x2="400" y2="240" stroke="#eee" stroke-width="2"/>
+                        <line x1="100" y1="270" x2="400" y2="270" stroke="#eee" stroke-width="2"/>
+                        <line x1="100" y1="300" x2="400" y2="300" stroke="#eee" stroke-width="2"/>
+                        
+                        <!-- Redaction boxes -->
+                        <rect x="150" y="85" width="100" height="10" rx="2" fill="#2673e5" opacity="0.7"/>
+                        <rect x="300" y="85" width="70" height="10" rx="2" fill="#2673e5" opacity="0.7"/>
+                        
+                        <rect x="120" y="115" width="80" height="10" rx="2" fill="#11a3a3" opacity="0.7"/>
+                        <rect x="240" y="115" width="120" height="10" rx="2" fill="#11a3a3" opacity="0.7"/>
+                        
+                        <rect x="180" y="175" width="150" height="10" rx="2" fill="#2673e5" opacity="0.7"/>
+                        
+                        <rect x="130" y="205" width="90" height="10" rx="2" fill="#11a3a3" opacity="0.7"/>
+                        <rect x="260" y="205" width="110" height="10" rx="2" fill="#11a3a3" opacity="0.7"/>
+                        
+                        <rect x="200" y="265" width="130" height="10" rx="2" fill="#2673e5" opacity="0.7"/>
+                        
+                        <rect x="150" y="295" width="200" height="10" rx="2" fill="#11a3a3" opacity="0.7"/>
+                        
+                        <!-- Magnifying glass -->
+                        <circle cx="350" cy="150" r="40" fill="none" stroke="#666" stroke-width="3"/>
+                        <line x1="380" y1="180" x2="410" y2="210" stroke="#666" stroke-width="4"/>
+                        
+                        <!-- Lock icon -->
+                        <rect x="70" y="70" width="30" height="25" rx="3" fill="#2673e5"/>
+                        <rect x="80" y="60" width="10" height="15" rx="2" fill="#11a3a3"/>
+                    </svg>
+                </div>
             </div>
         </div>
     </section>
 
     <section class="benefits" id="benefits">
         <div class="container">
-            <h2 class="section-title">Why Choose Our Solutions?</h2>
+            <h2 class="section-title">Why We're Different</h2>
+            <p class="section-subtitle">We don't believe in one-size-fits-all redaction solutions. Our approach is built around understanding your unique requirements and building software that works exactly how you need it.</p>
             <div class="benefits-container">
                 <div class="benefit-card">
-                    <div class="benefit-icon">⚡</div>
-                    <h3>Force Multiplier</h3>
-                    <p>Our tools act as force multipliers for your business, allowing you to accomplish more with less effort and amplify your existing strengths.</p>
+                    <div class="benefit-icon">🛠️</div>
+                    <h3>Tailored Solutions</h3>
+                    <p>We collaborate closely with you to understand your exact redaction needs, then build custom solutions that address your specific security requirements and compliance standards.</p>
                 </div>
                 <div class="benefit-card">
-                    <div class="benefit-icon">⏱️</div>
-                    <h3>Save Precious Time</h3>
-                    <p>Reclaim your most valuable asset - time. Our digital solutions automate repetitive tasks and streamline operations so you can focus on growth.</p>
+                    <div class="benefit-icon">🔄</div>
+                    <h3>Adaptive Technology</h3>
+                    <p>Our software evolves with your needs. As your redaction requirements change, our solutions adapt—no need for complete system overhauls or disruptive transitions.</p>
                 </div>
                 <div class="benefit-card">
-                    <div class="benefit-icon">🎯</div>
-                    <h3>Customized For You</h3>
-                    <p>We understand that every business is unique. Our tools are tailored specifically to address your challenges and enhance your competitive advantages.</p>
+                    <div class="benefit-icon">👥</div>
+                    <h3>Personalized Support</h3>
+                    <p>We're partners in your data security journey, not just vendors. Get direct access to our experts who understand your business and can provide immediate assistance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="process" id="process">
+        <div class="container">
+            <h2 class="section-title">Our Collaborative Approach</h2>
+            <p class="section-subtitle">We don't just deliver software—we partner with you to create the perfect redaction solution for your business.</p>
+            
+            <div class="process-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div>
+                        <div class="step-title">Discovery</div>
+                        <p>We analyze your document workflows and security needs to understand exactly what requires protection.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div>
+                        <div class="step-title">Custom Design</div>
+                        <p>Our team creates a tailored redaction solution specific to your business requirements.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div>
+                        <div class="step-title">Implementation</div>
+                        <p>We deploy your custom solution and integrate it seamlessly with your existing systems.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div>
+                        <div class="step-title">Ongoing Support</div>
+                        <p>Our team provides continuous support and refinements to ensure your redaction needs are always met.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -312,7 +784,7 @@
 
     <section class="contact" id="contact">
         <div class="container">
-            <h2 class="section-title">Contact Us</h2>
+            <h2 class="section-title">Get Your Customized Solution</h2>
             <div class="contact-form">
                 <form action="https://formsubmit.co/docuguardit.com@gmail.com" method="POST">
                     <div class="form-group">
@@ -328,10 +800,45 @@
                         <input type="text" id="business" name="business">
                     </div>
                     <div class="form-group">
-                        <label for="message">Tell us about your needs</label>
+                        <label for="redaction_needs">What type of documents need redaction?</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="financial" name="document_types[]" value="Financial">
+                                <label for="financial">Financial</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="medical" name="document_types[]" value="Medical">
+                                <label for="medical">Medical</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="legal" name="document_types[]" value="Legal">
+                                <label for="legal">Legal</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="hr" name="document_types[]" value="HR">
+                                <label for="hr">HR</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="other" name="document_types[]" value="Other">
+                                <label for="other">Other</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="volume">Approximate document volume per month</label>
+                        <select id="volume" name="volume">
+                            <option value="Under 100">Under 100</option>
+                            <option value="100-500">100-500</option>
+                            <option value="500-1000">500-1,000</option>
+                            <option value="1000-5000">1,000-5,000</option>
+                            <option value="Over 5000">Over 5,000</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Tell us about your specific redaction needs</label>
                         <textarea id="message" name="message" required></textarea>
                     </div>
-                    <button type="submit" class="btn">Send Message</button>
+                    <button type="submit" class="btn">Request Custom Solution</button>
                 </form>
             </div>
         </div>
@@ -339,8 +846,34 @@
 
     <footer>
         <div class="container">
+            <div class="footer-links">
+                <a href="#what-we-do">Solutions</a>
+                <a href="#benefits">Benefits</a>
+                <a href="#process">Our Approach</a>
+                <a href="#contact">Contact</a>
+            </div>
             <p>&copy; 2025 docuguardIT. All rights reserved.</p>
         </div>
     </footer>
+
+    <script>
+        // Simple script for mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburger = document.querySelector('.hamburger');
+            const navLinks = document.querySelector('.nav-links');
+            
+            hamburger.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+            });
+            
+            // Close menu when clicking a link
+            const links = document.querySelectorAll('.nav-links a');
+            links.forEach(link => {
+                link.addEventListener('click', function() {
+                    navLinks.classList.remove('active');
+                });
+            });
+        });
+    </script>
 </body>
 </html>

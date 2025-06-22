@@ -1,0 +1,7 @@
+# app-ads.txt file for Zoomly Camera app
+# This file authorizes Google AdMob to serve ads for your app
+
+google.com, pub-9009640218954010, DIRECT, f08c47fec0942fa0
+
+# Replace "pub-XXXXXXXXXXXXXXXXX" with your actual AdMob Publisher ID
+# You can find your Publisher ID in AdMob Console → Account → Account Information

@@ -1,0 +1,342 @@
+import React, { useState, useEffect } from 'react';
+import { updateGame } from '../services/firebase';
+import Timer from './Timer';
+
+const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
+  const [countdown, setCountdown] = useState(3);
+  const [isReady, setIsReady] = useState(false);
+  const [wordRevealed, setWordRevealed] = useState(false);
+  const [timerStarted, setTimerStarted] = useState(false);
+
+  const selectedWord = game?.currentRoundData?.selectedWord;
+  const performerId = game?.currentRoundData?.performerId;
+  const isPerformer = userId === performerId;
+  const myTeam = game?.players?.[userId]?.team;
+  const wordSelectingTeam = game?.currentRoundData?.wordSelectingTeam;
+
+  // Can see the word if:
+  // 1. You're the performer
+  // 2. You're on the team that selected the word
+  const canSeeWord = isPerformer || myTeam === wordSelectingTeam;
+
+  // Performer readiness flow
+  const handlePerformerReady = async () => {
+    setIsReady(true);
+
+    // Start 3-2-1 countdown
+    const countdownInterval = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(countdownInterval);
+          setWordRevealed(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  // Anyone from Team A can tap to reveal word on performer's screen
+  const handleRevealWord = async () => {
+    if (myTeam !== wordSelectingTeam) return;
+
+    try {
+      await updateGame(game.gameId, {
+        'currentRoundData.wordRevealed': true,
+        'currentRoundData.timerStartedAt': new Date().toISOString()
+      });
+
+      setWordRevealed(true);
+      setTimerStarted(true);
+    } catch (error) {
+      console.error('Error revealing word:', error);
+    }
+  };
+
+  // Listen for word reveal from Firebase
+  useEffect(() => {
+    if (game?.currentRoundData?.wordRevealed && !wordRevealed) {
+      setWordRevealed(true);
+      setTimerStarted(true);
+    }
+  }, [game?.currentRoundData?.wordRevealed]);
+
+  // PERFORMER VIEW - Before ready
+  if (isPerformer && !isReady && !wordRevealed) {
+    return (
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+        padding: '2rem',
+        textAlign: 'center'
+      }}>
+        <div style={{
+          fontSize: '4rem',
+          marginBottom: '2rem'
+        }}>
+          🎭
+        </div>
+        <h1 style={{
+          color: 'white',
+          fontSize: 'clamp(1.5rem, 5vw, 2.5rem)',
+          marginBottom: '1rem'
+        }}>
+          You're the Performer!
+        </h1>
+        <p style={{
+          color: 'rgba(255,255,255,0.9)',
+          fontSize: '1.125rem',
+          marginBottom: '3rem',
+          maxWidth: '400px'
+        }}>
+          Place your phone on the table where you can see it, then tap "I'm Ready" when everyone is watching
+        </p>
+        <button
+          onClick={handlePerformerReady}
+          className="btn btn-lg"
+          style={{
+            background: 'white',
+            color: '#667eea',
+            padding: '1.25rem 3rem',
+            fontSize: '1.25rem',
+            fontWeight: 700
+          }}
+        >
+          I'm Ready! 🎯
+        </button>
+      </div>
+    );
+  }
+
+  // PERFORMER VIEW - Countdown
+  if (isPerformer && isReady && countdown > 0 && !wordRevealed) {
+    return (
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999
+      }}>
+        <div style={{
+          fontSize: 'clamp(8rem, 30vw, 20rem)',
+          fontWeight: 900,
+          color: 'white',
+          animation: 'pulse 0.5s ease-in-out'
+        }}>
+          {countdown}
+        </div>
+      </div>
+    );
+  }
+
+  // PERFORMER VIEW - Word revealed with timer
+  if (isPerformer && wordRevealed) {
+    return (
+      <>
+        {/* Full screen word display */}
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9998,
+          padding: '2rem'
+        }}>
+          <div style={{
+            fontSize: 'clamp(2rem, 10vw, 6rem)',
+            fontWeight: 900,
+            color: 'white',
+            textAlign: 'center',
+            lineHeight: 1.2,
+            textShadow: '0 4px 20px rgba(0,0,0,0.3)',
+            wordBreak: 'break-word'
+          }}>
+            {selectedWord}
+          </div>
+          <div style={{
+            marginTop: '2rem',
+            fontSize: '1.125rem',
+            color: 'rgba(255,255,255,0.9)',
+            fontWeight: 600
+          }}>
+            🎭 Act it out!
+          </div>
+        </div>
+
+        {/* Timer overlay */}
+        <Timer
+          duration={game?.settings?.timer || 60}
+          isActive={timerStarted}
+          onComplete={onTimerComplete}
+          showLarge={true}
+        />
+      </>
+    );
+  }
+
+  // WORD-SELECTING TEAM VIEW - Can reveal word
+  if (myTeam === wordSelectingTeam && !wordRevealed) {
+    return (
+      <div style={{
+        background: 'white',
+        borderRadius: 'var(--radius-xl)',
+        padding: '2rem',
+        boxShadow: 'var(--shadow-md)',
+        textAlign: 'center'
+      }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👀</div>
+        <h3 style={{
+          fontSize: '1.25rem',
+          fontWeight: 700,
+          marginBottom: '1rem'
+        }}>
+          Ready to Start?
+        </h3>
+        <p style={{
+          color: 'var(--text-secondary)',
+          marginBottom: '2rem'
+        }}>
+          When the performer places their phone down, tap the button below to reveal the word on their screen
+        </p>
+
+        <div style={{
+          padding: '1.5rem',
+          background: 'var(--bg-tertiary)',
+          borderRadius: 'var(--radius-lg)',
+          marginBottom: '2rem'
+        }}>
+          <div style={{
+            fontSize: '0.875rem',
+            color: 'var(--text-secondary)',
+            marginBottom: '0.5rem'
+          }}>
+            Selected Word:
+          </div>
+          <div style={{
+            fontSize: '1.5rem',
+            fontWeight: 700,
+            color: 'var(--primary)'
+          }}>
+            {selectedWord}
+          </div>
+        </div>
+
+        <button
+          onClick={handleRevealWord}
+          className="btn btn-primary btn-full btn-lg"
+        >
+          👉 Tap to Reveal Word & Start Timer
+        </button>
+      </div>
+    );
+  }
+
+  // OTHER TEAM VIEW - Waiting/Guessing
+  if (myTeam !== wordSelectingTeam && !wordRevealed) {
+    return (
+      <div style={{
+        background: 'white',
+        borderRadius: 'var(--radius-xl)',
+        padding: '2rem',
+        boxShadow: 'var(--shadow-md)',
+        textAlign: 'center'
+      }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🤔</div>
+        <h3 style={{
+          fontSize: '1.25rem',
+          fontWeight: 700,
+          marginBottom: '0.5rem'
+        }}>
+          Get Ready to Guess!
+        </h3>
+        <p style={{ color: 'var(--text-secondary)' }}>
+          Watch your teammate perform and try to guess the word
+        </p>
+      </div>
+    );
+  }
+
+  // OTHER TEAM VIEW - Timer running
+  if (myTeam !== wordSelectingTeam && wordRevealed) {
+    return (
+      <div style={{
+        background: 'white',
+        borderRadius: 'var(--radius-xl)',
+        padding: '2rem',
+        boxShadow: 'var(--shadow-md)',
+        textAlign: 'center'
+      }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎭</div>
+        <h3 style={{
+          fontSize: '1.5rem',
+          fontWeight: 700,
+          color: 'var(--secondary)',
+          marginBottom: '0.5rem'
+        }}>
+          GUESS THE WORD!
+        </h3>
+        <p style={{ color: 'var(--text-secondary)' }}>
+          Watch closely and shout out your guesses!
+        </p>
+
+        <Timer
+          duration={game?.settings?.timer || 60}
+          isActive={timerStarted}
+          onComplete={onTimerComplete}
+          showLarge={false}
+        />
+      </div>
+    );
+  }
+
+  // WORD-SELECTING TEAM VIEW - Timer running
+  if (myTeam === wordSelectingTeam && wordRevealed) {
+    return (
+      <div style={{
+        background: 'white',
+        borderRadius: 'var(--radius-xl)',
+        padding: '2rem',
+        boxShadow: 'var(--shadow-md)',
+        textAlign: 'center'
+      }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👀</div>
+        <h3 style={{
+          fontSize: '1.25rem',
+          fontWeight: 700,
+          marginBottom: '1rem'
+        }}>
+          Watch & Listen
+        </h3>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+          The word is: <strong>{selectedWord}</strong>
+        </p>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+          You'll score the round when time is up
+        </p>
+
+        <Timer
+          duration={game?.settings?.timer || 60}
+          isActive={timerStarted}
+          onComplete={onTimerComplete}
+          showLarge={false}
+        />
+      </div>
+    );
+  }
+
+  return null;
+};
+
+export default WordRevealPhase;

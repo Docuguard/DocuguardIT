@@ -7,6 +7,8 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
   const [isReady, setIsReady] = useState(false);
   const [wordRevealed, setWordRevealed] = useState(false);
   const [timerStarted, setTimerStarted] = useState(false);
+  const [guessInput, setGuessInput] = useState('');
+  const [myGuesses, setMyGuesses] = useState([]);
 
   const selectedWord = game?.currentRoundData?.selectedWord;
   const performerId = game?.currentRoundData?.performerId;
@@ -60,6 +62,42 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
       setTimerStarted(true);
     }
   }, [game?.currentRoundData?.wordRevealed]);
+
+  // Handle guess submission
+  const handleSubmitGuess = async (e) => {
+    e.preventDefault();
+    if (!guessInput.trim()) return;
+
+    const guess = guessInput.trim();
+    setMyGuesses([...myGuesses, guess]);
+    setGuessInput('');
+
+    try {
+      // Save guess to Firebase
+      const currentGuesses = game?.currentRoundData?.guesses || {};
+      const playerGuesses = currentGuesses[userId] || [];
+
+      await updateGame(game.gameId, {
+        [`currentRoundData.guesses.${userId}`]: [...playerGuesses, {
+          guess,
+          timestamp: new Date().toISOString(),
+          playerName: game.players[userId].name
+        }]
+      });
+
+      // Check if guess is correct
+      if (guess.toLowerCase() === selectedWord.toLowerCase()) {
+        // Mark as correctly guessed!
+        await updateGame(game.gameId, {
+          'currentRoundData.correctlyGuessed': true,
+          'currentRoundData.guessedBy': userId,
+          'currentRoundData.guessedByName': game.players[userId].name
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting guess:', error);
+    }
+  };
 
   // PERFORMER VIEW - Before ready
   if (isPerformer && !isReady && !wordRevealed) {
@@ -268,8 +306,10 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
     );
   }
 
-  // OTHER TEAM VIEW - Timer running
+  // OTHER TEAM VIEW - Timer running (GUESSING TEAM)
   if (myTeam !== wordSelectingTeam && wordRevealed) {
+    const wasGuessed = game?.currentRoundData?.correctlyGuessed;
+
     return (
       <div style={{
         background: 'white',
@@ -287,9 +327,69 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
         }}>
           GUESS THE WORD!
         </h3>
-        <p style={{ color: 'var(--text-secondary)' }}>
-          Watch closely and shout out your guesses!
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+          Watch your teammate and type your guesses below
         </p>
+
+        {/* Guess Input Form */}
+        {!wasGuessed && (
+          <form onSubmit={handleSubmitGuess} style={{ marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Type your guess..."
+                value={guessInput}
+                onChange={(e) => setGuessInput(e.target.value)}
+                style={{ marginBottom: 0, fontSize: '1.125rem' }}
+                autoFocus
+              />
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={!guessInput.trim()}
+                style={{ whiteSpace: 'nowrap', padding: '0 2rem' }}
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* Show if word was guessed correctly */}
+        {wasGuessed && (
+          <div style={{
+            padding: '1rem',
+            background: '#d1fae5',
+            color: '#065f46',
+            borderRadius: 'var(--radius-lg)',
+            marginBottom: '1.5rem',
+            fontWeight: 700,
+            fontSize: '1.125rem'
+          }}>
+            🎉 {game.currentRoundData.guessedByName} got it!
+          </div>
+        )}
+
+        {/* My previous guesses */}
+        {myGuesses.length > 0 && (
+          <div style={{
+            marginBottom: '1.5rem',
+            padding: '1rem',
+            background: 'var(--bg-tertiary)',
+            borderRadius: 'var(--radius)',
+            textAlign: 'left'
+          }}>
+            <div style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+              Your guesses:
+            </div>
+            <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+              {myGuesses.map((g, i) => (
+                <div key={i}>• {g}</div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <Timer
           duration={game?.settings?.timer || 60}

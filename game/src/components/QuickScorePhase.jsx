@@ -10,8 +10,11 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
 
   const myTeam = game?.players?.[userId]?.team;
   const wordSelectingTeam = game?.currentRoundData?.wordSelectingTeam;
+  const guessingTeam = wordSelectingTeam === 'teamA' ? 'teamB' : 'teamA';
   const canScore = myTeam === wordSelectingTeam;
   const selectedWord = game?.currentRoundData?.selectedWord;
+  const wasGuessedCorrectly = game?.currentRoundData?.correctlyGuessed;
+  const guessedByName = game?.currentRoundData?.guessedByName;
 
   // Listen for score from Firebase
   useEffect(() => {
@@ -82,12 +85,24 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
       // Update team scores
       const currentScoreA = game.scores?.teamA || 0;
       const currentScoreB = game.scores?.teamB || 0;
+      const guessingTeam = wordSelectingTeam === 'teamA' ? 'teamB' : 'teamA';
 
       const updates = {
         gamePhase: 'roundComplete'
       };
 
+      // CORRECT SCORING LOGIC:
+      // If scored = true: Word was guessed correctly → GUESSING team gets point
+      // If scored = false: Word was NOT guessed → WORD-SELECTING team gets point
       if (scored) {
+        // Guessing team got it right!
+        if (guessingTeam === 'teamA') {
+          updates['scores.teamA'] = currentScoreA + 1;
+        } else {
+          updates['scores.teamB'] = currentScoreB + 1;
+        }
+      } else {
+        // Guessing team failed → Word-selecting team gets point
         if (wordSelectingTeam === 'teamA') {
           updates['scores.teamA'] = currentScoreA + 1;
         } else {
@@ -129,7 +144,7 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
             Time's Up!
           </h3>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-            Did they guess the word?
+            Did Team {guessingTeam === 'teamA' ? 'A' : 'B'} guess the word?
           </p>
           <div style={{
             padding: '1rem',
@@ -137,10 +152,26 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
             borderRadius: 'var(--radius-lg)',
             fontSize: '1.25rem',
             fontWeight: 700,
-            color: 'var(--primary)'
+            color: 'var(--primary)',
+            marginBottom: '1rem'
           }}>
             {selectedWord}
           </div>
+
+          {/* Show if word was auto-detected as guessed */}
+          {wasGuessedCorrectly && (
+            <div style={{
+              padding: '0.75rem',
+              background: '#d1fae5',
+              color: '#065f46',
+              borderRadius: 'var(--radius)',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              marginBottom: '1rem'
+            }}>
+              ✓ {guessedByName} typed it correctly!
+            </div>
+          )}
         </div>
 
         <div style={{
@@ -180,7 +211,7 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
           color: 'var(--text-secondary)',
           textAlign: 'center'
         }}>
-          First person to tap scores the round
+          YES = Team {guessingTeam === 'teamA' ? 'A' : 'B'} scores | NO = Team {wordSelectingTeam === 'teamA' ? 'A' : 'B'} scores
         </p>
       </div>
     );

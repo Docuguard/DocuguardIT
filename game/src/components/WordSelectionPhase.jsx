@@ -14,11 +14,29 @@ const WordSelectionPhase = ({ game, userId, onComplete }) => {
   const allowCustomWords = game?.settings?.allowCustomWords;
   const wordPacks = game?.settings?.wordPacks || ['classic'];
 
-  // Initialize word options
+  // Initialize word options and sync with Firebase
   useEffect(() => {
-    const words = getCombinedWords(wordPacks, 5);
-    setWordOptions(words);
+    // Check if words are already in Firebase
+    if (game?.currentRoundData?.wordOptions) {
+      setWordOptions(game.currentRoundData.wordOptions);
+    } else {
+      // Host initializes the words
+      const words = getCombinedWords(wordPacks, 5);
+      setWordOptions(words);
+
+      // Save to Firebase so all players see the same options
+      updateGame(game.gameId, {
+        'currentRoundData.wordOptions': words
+      });
+    }
   }, []);
+
+  // Sync word options when they change in Firebase
+  useEffect(() => {
+    if (game?.currentRoundData?.wordOptions) {
+      setWordOptions(game.currentRoundData.wordOptions);
+    }
+  }, [game?.currentRoundData?.wordOptions]);
 
   // Auto-submit timer
   useEffect(() => {
@@ -60,7 +78,7 @@ const WordSelectionPhase = ({ game, userId, onComplete }) => {
     setSelectedWord(word);
   };
 
-  const handleAddCustomWord = () => {
+  const handleAddCustomWord = async () => {
     if (!customWord.trim()) {
       toast.error('Please enter a word');
       return;
@@ -71,9 +89,21 @@ const WordSelectionPhase = ({ game, userId, onComplete }) => {
       return;
     }
 
-    setWordOptions([...wordOptions, customWord.trim()]);
-    setCustomWord('');
-    toast.success('Custom word added!');
+    const newWord = customWord.trim();
+    const newOptions = [...wordOptions, newWord];
+
+    try {
+      // Update Firebase so all team members see the new word
+      await updateGame(game.gameId, {
+        'currentRoundData.wordOptions': newOptions
+      });
+
+      setCustomWord('');
+      toast.success(`"${newWord}" added for everyone to vote on!`);
+    } catch (error) {
+      console.error('Error adding custom word:', error);
+      toast.error('Failed to add word');
+    }
   };
 
   const handleSubmitVote = async () => {

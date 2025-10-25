@@ -115,12 +115,18 @@ const GamePlayPage = () => {
         'currentRoundData.wordSelectingTeam': nextWordSelectingTeam,
         'currentRoundData.performingTeam': nextPerformingTeam,
         'currentRoundData.votes': {},
+        'currentRoundData.wordOptions': null,
         'currentRoundData.selectedWord': null,
         'currentRoundData.performerId': null,
         'currentRoundData.wordRevealed': false,
         'currentRoundData.timerStartedAt': null,
         'currentRoundData.scored': null,
-        'currentRoundData.scoredBy': null
+        'currentRoundData.scoredBy': null,
+        'currentRoundData.correctlyGuessed': null, // Clear guess flag for next round
+        'currentRoundData.guessedBy': null,
+        'currentRoundData.guessedByName': null,
+        'currentRoundData.guessedByTeam': null,
+        'currentRoundData.guesses': {} // Clear all guesses
       });
 
       toast.success('Next round starting!');
@@ -493,7 +499,7 @@ const GamePlayPage = () => {
                 color: '#065f46',
                 marginBottom: '0.5rem'
               }}>
-                Round {currentRound - 1} Complete!
+                Round {currentRound} Complete!
               </div>
               {game.currentRoundData?.guessedByName && (
                 <div style={{
@@ -525,7 +531,7 @@ const GamePlayPage = () => {
                 onClick={handleRoundComplete}
                 className="btn btn-primary btn-full btn-lg"
               >
-                Start Round {currentRound} →
+                Start Round {currentRound + 1} →
               </button>
             )}
 

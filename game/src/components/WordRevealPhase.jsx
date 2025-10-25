@@ -316,8 +316,8 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
     );
   }
 
-  // OTHER TEAM VIEW - Timer running (GUESSING TEAM)
-  if (myTeam !== wordSelectingTeam && wordRevealed) {
+  // OTHER TEAM VIEW - Timer running (GUESSING TEAM - NON-PERFORMERS ONLY)
+  if (myTeam !== wordSelectingTeam && wordRevealed && !isPerformer) {
     const wasGuessed = game?.currentRoundData?.correctlyGuessed;
 
     return (

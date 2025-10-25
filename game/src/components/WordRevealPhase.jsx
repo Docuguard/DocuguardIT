@@ -16,6 +16,20 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
   const myTeam = game?.players?.[userId]?.team;
   const wordSelectingTeam = game?.currentRoundData?.wordSelectingTeam;
 
+  // Debug logging
+  useEffect(() => {
+    if (isPerformer) {
+      console.log('🎭 PERFORMER STATE:', {
+        isPerformer,
+        isReady,
+        countdown,
+        wordRevealed,
+        timerStarted,
+        selectedWord
+      });
+    }
+  }, [isPerformer, isReady, countdown, wordRevealed, timerStarted]);
+
   // Can see the word if:
   // 1. You're the performer
   // 2. You're on the team that selected the word
@@ -23,34 +37,41 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
 
   // Performer readiness flow
   const handlePerformerReady = async () => {
+    console.log('🎭 Performer clicked "I\'m Ready"');
     setIsReady(true);
 
     // Start 3-2-1 countdown
+    let count = 3;
     const countdownInterval = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(countdownInterval);
-          // After countdown, reveal word and start timer for everyone
-          revealWordAndStartTimer();
-          return 0;
-        }
-        return prev - 1;
-      });
+      count = count - 1;
+      console.log(`⏱️ Countdown: ${count}`);
+      setCountdown(count);
+
+      if (count <= 0) {
+        clearInterval(countdownInterval);
+        console.log('🚀 Countdown finished, revealing word...');
+        // After countdown, reveal word and start timer for everyone
+        revealWordAndStartTimer();
+      }
     }, 1000);
   };
 
   // Reveal word and start timer (called after performer countdown OR by word-selecting team)
   const revealWordAndStartTimer = async () => {
+    console.log('📢 Revealing word and starting timer...');
+
+    // Set local state immediately
+    setWordRevealed(true);
+    setTimerStarted(true);
+
     try {
       await updateGame(game.gameId, {
         'currentRoundData.wordRevealed': true,
         'currentRoundData.timerStartedAt': new Date().toISOString()
       });
-
-      setWordRevealed(true);
-      setTimerStarted(true);
+      console.log('✅ Word revealed in Firebase');
     } catch (error) {
-      console.error('Error revealing word:', error);
+      console.error('❌ Error revealing word:', error);
     }
   };
 
@@ -116,6 +137,7 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
 
   // PERFORMER VIEW - Before ready
   if (isPerformer && !isReady && !wordRevealed) {
+    console.log('📱 Rendering: Performer "I\'m Ready" button');
     return (
       <div style={{
         position: 'fixed',
@@ -169,6 +191,7 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
 
   // PERFORMER VIEW - Countdown
   if (isPerformer && isReady && countdown > 0 && !wordRevealed) {
+    console.log('📱 Rendering: Performer countdown -', countdown);
     return (
       <div style={{
         position: 'fixed',
@@ -193,6 +216,7 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
 
   // PERFORMER VIEW - Word revealed with timer
   if (isPerformer && wordRevealed) {
+    console.log('📱 Rendering: Performer WORD DISPLAY -', selectedWord);
     return (
       <>
         {/* Full screen word display */}
@@ -450,6 +474,17 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
       </div>
     );
   }
+
+  // Fallback - should never reach here if logic is correct
+  console.warn('⚠️ WordRevealPhase: No view matched!', {
+    isPerformer,
+    isReady,
+    countdown,
+    wordRevealed,
+    timerStarted,
+    myTeam,
+    wordSelectingTeam
+  });
 
   return null;
 };

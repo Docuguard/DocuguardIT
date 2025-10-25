@@ -218,48 +218,53 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
   if (isPerformer && wordRevealed) {
     console.log('📱 Rendering: Performer WORD DISPLAY -', selectedWord);
     return (
-      <>
-        {/* Full screen word display */}
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9998,
+        padding: '2rem'
+      }}>
+        {/* Timer in top-right corner */}
         <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9998,
-          padding: '2rem'
+          position: 'absolute',
+          top: '2rem',
+          right: '2rem',
+          zIndex: 10000
         }}>
-          <div style={{
-            fontSize: 'clamp(2rem, 10vw, 6rem)',
-            fontWeight: 900,
-            color: 'white',
-            textAlign: 'center',
-            lineHeight: 1.2,
-            textShadow: '0 4px 20px rgba(0,0,0,0.3)',
-            wordBreak: 'break-word'
-          }}>
-            {selectedWord}
-          </div>
-          <div style={{
-            marginTop: '2rem',
-            fontSize: '1.125rem',
-            color: 'rgba(255,255,255,0.9)',
-            fontWeight: 600
-          }}>
-            🎭 Act it out!
-          </div>
+          <Timer
+            duration={game?.settings?.timer || 60}
+            isActive={timerStarted}
+            onComplete={onTimerComplete}
+            showLarge={false}
+          />
         </div>
 
-        {/* Timer overlay */}
-        <Timer
-          duration={game?.settings?.timer || 60}
-          isActive={timerStarted}
-          onComplete={onTimerComplete}
-          showLarge={true}
-        />
-      </>
+        {/* Word display */}
+        <div style={{
+          fontSize: 'clamp(2rem, 10vw, 6rem)',
+          fontWeight: 900,
+          color: 'white',
+          textAlign: 'center',
+          lineHeight: 1.2,
+          textShadow: '0 4px 20px rgba(0,0,0,0.3)',
+          wordBreak: 'break-word'
+        }}>
+          {selectedWord}
+        </div>
+        <div style={{
+          marginTop: '2rem',
+          fontSize: '1.125rem',
+          color: 'rgba(255,255,255,0.9)',
+          fontWeight: 600
+        }}>
+          🎭 Act it out!
+        </div>
+      </div>
     );
   }
 

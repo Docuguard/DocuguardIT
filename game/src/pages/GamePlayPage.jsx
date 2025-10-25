@@ -203,6 +203,14 @@ const GamePlayPage = () => {
     const winner = teamAScore > teamBScore ? 'Team A' : teamBScore > teamAScore ? 'Team B' : 'Tie';
     const didWin = (winner === 'Team A' && myTeam === 'teamA') || (winner === 'Team B' && myTeam === 'teamB');
 
+    // Create individual player rankings
+    const playerRankings = Object.entries(game.players || {}).map(([playerId, player]) => ({
+      id: playerId,
+      name: player.name,
+      team: player.team,
+      points: game.playerPoints?.[playerId] || 0
+    })).sort((a, b) => b.points - a.points);
+
     return (
       <div style={{
         minHeight: '100vh',
@@ -277,6 +285,75 @@ const GamePlayPage = () => {
               <div style={{ fontWeight: 600 }}>
                 Team B {myTeam === 'teamB' && '(You)'}
               </div>
+            </div>
+          </div>
+
+          {/* Individual Player Rankings */}
+          <div style={{
+            marginBottom: '2rem',
+            background: 'var(--bg-tertiary)',
+            borderRadius: 'var(--radius-lg)',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              padding: '1rem',
+              background: 'linear-gradient(90deg, var(--primary), var(--secondary))',
+              color: 'white',
+              fontWeight: 700,
+              textAlign: 'center'
+            }}>
+              🏆 Individual Rankings
+            </div>
+            <div style={{ padding: '0.5rem' }}>
+              {playerRankings.map((player, index) => (
+                <div
+                  key={player.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0.75rem 1rem',
+                    background: player.id === user.uid ? 'rgba(99, 102, 241, 0.1)' : 'white',
+                    borderRadius: 'var(--radius)',
+                    marginBottom: '0.5rem',
+                    border: player.id === user.uid ? '2px solid var(--primary)' : 'none'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{
+                      fontSize: '1.25rem',
+                      fontWeight: 800,
+                      color: index === 0 ? '#f59e0b' : index === 1 ? '#9ca3af' : index === 2 ? '#cd7f32' : 'var(--text-tertiary)',
+                      minWidth: '2rem'
+                    }}>
+                      {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
+                    </div>
+                    <div>
+                      <div style={{
+                        fontWeight: player.id === user.uid ? 700 : 600,
+                        fontSize: '1rem',
+                        marginBottom: '0.125rem'
+                      }}>
+                        {player.name} {player.id === user.uid && '(You)'}
+                      </div>
+                      <div style={{
+                        fontSize: '0.75rem',
+                        color: player.team === 'teamA' ? 'var(--primary)' : 'var(--secondary)',
+                        fontWeight: 600
+                      }}>
+                        Team {player.team === 'teamA' ? 'A' : 'B'}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{
+                    fontSize: '1.5rem',
+                    fontWeight: 800,
+                    color: 'var(--primary)'
+                  }}>
+                    {player.points}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -393,6 +470,75 @@ const GamePlayPage = () => {
             userId={user.uid}
             onComplete={handleRoundComplete}
           />
+        )}
+
+        {gamePhase === 'roundComplete' && (
+          <div style={{
+            background: 'white',
+            borderRadius: 'var(--radius-xl)',
+            padding: '2rem',
+            boxShadow: 'var(--shadow-md)',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              padding: '2rem',
+              background: '#d1fae5',
+              borderRadius: 'var(--radius-lg)',
+              marginBottom: '1.5rem'
+            }}>
+              <div style={{ fontSize: '4rem', marginBottom: '0.5rem' }}>🎉</div>
+              <div style={{
+                fontSize: '1.5rem',
+                fontWeight: 700,
+                color: '#065f46',
+                marginBottom: '0.5rem'
+              }}>
+                Round {currentRound - 1} Complete!
+              </div>
+              {game.currentRoundData?.guessedByName && (
+                <div style={{
+                  fontSize: '1rem',
+                  color: '#065f46',
+                  opacity: 0.9
+                }}>
+                  {game.currentRoundData.guessedByName} guessed it correctly!
+                </div>
+              )}
+            </div>
+
+            <div style={{
+              marginBottom: '1.5rem',
+              padding: '1rem',
+              background: 'var(--bg-tertiary)',
+              borderRadius: 'var(--radius)',
+              fontSize: '0.875rem'
+            }}>
+              <div style={{ fontWeight: 600, marginBottom: '0.5rem' }}>Current Scores</div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', fontSize: '1.25rem', fontWeight: 700 }}>
+                <div>Team A: {game.scores?.teamA || 0}</div>
+                <div>Team B: {game.scores?.teamB || 0}</div>
+              </div>
+            </div>
+
+            {isHost && (
+              <button
+                onClick={handleRoundComplete}
+                className="btn btn-primary btn-full btn-lg"
+              >
+                Start Round {currentRound} →
+              </button>
+            )}
+
+            {!isHost && (
+              <div style={{
+                padding: '1rem',
+                color: 'var(--text-secondary)',
+                fontSize: '0.875rem'
+              }}>
+                Waiting for host to start next round...
+              </div>
+            )}
+          </div>
         )}
 
         {/* Debug Info (remove in production) */}

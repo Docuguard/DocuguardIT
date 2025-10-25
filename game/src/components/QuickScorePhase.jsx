@@ -137,7 +137,7 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
       };
 
       // CORRECT SCORING LOGIC:
-      // If scoreValue = true: Word was guessed correctly → GUESSING team gets point
+      // If scoreValue = true: Word was guessed correctly → GUESSING team gets point + individual who guessed
       // If scoreValue = false: Word was NOT guessed → WORD-SELECTING team gets point
       if (scoreValue) {
         // Guessing team got it right!
@@ -147,6 +147,16 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
         } else {
           updates['scores.teamB'] = currentScoreB + 1;
           console.log(`✓ Team B (guessing team) gets point! ${currentScoreB} → ${currentScoreB + 1}`);
+        }
+
+        // Award individual point to the person who guessed correctly
+        if (guessedByTeam) {
+          const guesserId = game.currentRoundData?.guessedBy;
+          if (guesserId) {
+            const currentPlayerScore = game.playerPoints?.[guesserId] || 0;
+            updates[`playerPoints.${guesserId}`] = currentPlayerScore + 1;
+            console.log(`✓ ${guessedByName} gets individual point! ${currentPlayerScore} → ${currentPlayerScore + 1}`);
+          }
         }
       } else {
         // Guessing team failed → Word-selecting team gets point
@@ -350,78 +360,7 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
     );
   }
 
-  // Score finalized - show manual "Start Next Round" button
-  if (scored !== null && !canUndo && game?.gamePhase === 'roundComplete') {
-    const teamThatScored = scored ? guessingTeam : wordSelectingTeam;
-
-    return (
-      <div style={{
-        background: 'white',
-        borderRadius: 'var(--radius-xl)',
-        padding: '2rem',
-        boxShadow: 'var(--shadow-md)',
-        textAlign: 'center'
-      }}>
-        <div style={{
-          padding: '2rem',
-          background: scored ? '#d1fae5' : '#fee2e2',
-          borderRadius: 'var(--radius-lg)',
-          marginBottom: '1.5rem'
-        }}>
-          <div style={{ fontSize: '4rem', marginBottom: '0.5rem' }}>
-            {scored ? '🎉' : '💪'}
-          </div>
-          <div style={{
-            fontSize: '1.5rem',
-            fontWeight: 700,
-            color: scored ? '#065f46' : '#991b1b',
-            marginBottom: '0.5rem'
-          }}>
-            {scored ? 'Point Scored!' : 'No Point This Round'}
-          </div>
-          <div style={{
-            fontSize: '1rem',
-            color: scored ? '#065f46' : '#991b1b',
-            opacity: 0.9
-          }}>
-            Team {teamThatScored === 'teamA' ? 'A' : 'B'} gets the point!
-          </div>
-          {wasGuessedCorrectly && (
-            <div style={{
-              marginTop: '0.75rem',
-              fontSize: '0.875rem',
-              color: '#065f46',
-              fontWeight: 600
-            }}>
-              ✓ {guessedByName} typed it correctly!
-            </div>
-          )}
-        </div>
-
-        <div style={{
-          marginBottom: '1.5rem',
-          padding: '1rem',
-          background: 'var(--bg-tertiary)',
-          borderRadius: 'var(--radius)',
-          fontSize: '0.875rem'
-        }}>
-          <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Round Complete</div>
-          <div style={{ color: 'var(--text-secondary)' }}>
-            Team A: {game.scores?.teamA || 0} | Team B: {game.scores?.teamB || 0}
-          </div>
-        </div>
-
-        <button
-          onClick={() => onComplete && onComplete()}
-          className="btn btn-primary btn-full btn-lg"
-        >
-          Start Next Round →
-        </button>
-      </div>
-    );
-  }
-
-  // Waiting for score
+  // Waiting for score (phase will change to 'roundComplete' once finalized)
   return (
     <div style={{
       background: 'white',

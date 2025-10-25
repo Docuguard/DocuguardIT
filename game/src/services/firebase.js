@@ -140,6 +140,7 @@ export const createGame = async (hostId, settings) => {
     teams: { teamA: [], teamB: [] },
     currentRound: 0,
     scores: { teamA: 0, teamB: 0 },
+    playerPoints: {}, // Track individual player points
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   });

@@ -2,51 +2,60 @@
 
 A mobile-first, real-time multiplayer charades game built with React, Firebase, and Stripe.
 
-## ✨ Features
+> **Current Status:** Core gameplay fully implemented and working! Team play, individual scoring, word selection, performer view, timer, and anti-cheat measures all functional.
 
-### Core Gameplay
-- 📱 **Mobile-First Design** - Optimized for phone screens
-- ⚡ **Real-Time Sync** - Firebase real-time database for instant updates
-- 👥 **Team-Based Play** - Random team assignment with individual tracking
-- 🎯 **Word Selection System** - Vote on words or submit custom ones
-- ⏱️ **Customizable Timer** - Set game duration (30s-120s)
-- 🏆 **Score Tracking** - Real-time scoreboard
+## ✨ Implemented Features
 
-### Monetization
+### Core Gameplay ✅
+- 📱 **Mobile-First Design** - Optimized for phone screens with fullscreen views
+- ⚡ **Real-Time Sync** - Firebase Firestore for instant updates across all devices
+- 👥 **Team-Based Play** - Automatic random team assignment (Team A & Team B)
+- 🏆 **Individual Player Scoring** - Track points for each player who guesses correctly
+- 🎯 **Word Selection System** - Team voting with custom word submission
+- 🎭 **Performer View** - Fullscreen word display with timer and anti-cheat protection
+- ⏱️ **Smart Timer** - Auto-stops when word is typed correctly
+- 📊 **Real-Time Scoreboard** - Live team and individual scores
+- 🎮 **Manual Round Control** - Host decides when to start next round
+- 🔄 **Role Rotation** - Teams swap between word selection and guessing each round
+
+### Anti-Cheat Protection 🛡️
+- 🚫 **Text Selection Disabled** - Cannot highlight or copy the word
+- 🔒 **Copy/Paste Blocked** - Keyboard shortcuts and right-click disabled
+- 👁️ **Window Focus Detection** - Word hides when app loses focus (screenshot deterrent)
+- 🏷️ **Player Watermark** - Shows "PERFORMER VIEW • [Name]" on screen
+- 🔐 **Interaction Prevention** - Word text is unclickable/untouchable
+
+### Game Flow 🎯
+1. **Lobby** - Players join via game code, host starts when ready (4+ players required)
+2. **Team Assignment** - Players randomly split into Team A and Team B
+3. **Parallel Phase** - Team A selects word (voting) + Team B selects performer (simultaneously)
+4. **Performance** - Performer sees word fullscreen, timer starts, guessing team types guesses
+5. **Auto-Scoring** - If word typed correctly → timer stops, point awarded automatically
+6. **Manual Scoring** - If timer runs out → word-selecting team confirms if guessed
+7. **Round Complete** - Shows scores, reveals word to everyone, host starts next round
+8. **Game End** - Shows team winners + individual player rankings with medals 🥇🥈🥉
+
+### Monetization (Planned) 💎
 - 🆓 **Free Tier** - 3 games per month
 - 💎 **Premium** - $4.99/year unlimited access
-- 💳 **Stripe Integration** - Secure payment processing
+- 💳 **Stripe Integration** - Payment processing (not yet implemented)
 
-### Progression System
-- 📊 **Levels & XP** - Level up from "Novice Mime" to "Drama Legend"
-- 🏅 **Achievements** - 15+ unlockable achievements
-- 📈 **Leaderboards** - Global and friends rankings
-- 📜 **Game History** - Track all past games and stats
-
-### Word Packs
+### Word Packs 📚
 - 🎨 **Classic Pack** - 100 funny charades words (FREE)
-- 🎬 **Movies & TV** - Premium pack
-- 🐾 **Animals & Nature** - Premium pack
-- 🔥 **Pop Culture 2024** - Premium pack
-- 🔞 **18+ Mature Pack** - Premium pack
-- ✍️ **Custom Packs** - Create and share your own (Premium)
-
-### Social Features
-- 🔗 **Shareable Links** - Invite friends with a game code
-- 📱 **Share Highlights** - Share epic moments
-- 🎁 **Referral System** - Invite friends, earn rewards
-- 👫 **Friend System** - Add players and see when they're online
+  - Examples: "Robot Therapist", "Penguin Sliding on Ice", "T-Rex Trying to Clap"
+- ✍️ **Custom Words** - Players can add custom words during word selection
+- 🔜 Premium packs coming soon (Movies, Animals, Pop Culture, 18+)
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+ installed
 - Firebase account (free tier works)
-- Stripe account (for payments)
+- Git for version control
 
 ### Installation
 
-1. **Install dependencies:**
+1. **Clone and navigate:**
 ```bash
 cd game
 npm install
@@ -55,18 +64,11 @@ npm install
 2. **Set up Firebase:**
    - Go to [Firebase Console](https://console.firebase.google.com/)
    - Create a new project
-   - Enable Authentication (Google & Email/Password)
-   - Enable Firestore Database
-   - Enable Hosting
+   - Enable Authentication (Email/Password recommended, Google Sign-In optional)
+   - Create Firestore Database (start in test mode, update rules later)
    - Copy your config and update `src/services/firebase.js`
 
-3. **Set up Stripe:**
-   - Go to [Stripe Dashboard](https://dashboard.stripe.com/)
-   - Get your publishable key
-   - Create a product for the $4.99/year subscription
-   - Update Stripe keys in environment
-
-4. **Configure Firebase (Important!):**
+3. **Configure Firebase:**
 
 Edit `/game/src/services/firebase.js` and replace with your Firebase config:
 
@@ -81,7 +83,7 @@ const firebaseConfig = {
 };
 ```
 
-5. **Run development server:**
+4. **Run development server:**
 ```bash
 npm run dev
 ```
@@ -94,90 +96,181 @@ The app will be available at `http://localhost:3000`
 game/
 ├── src/
 │   ├── components/          # React components
-│   │   ├── LoadingScreen.jsx
-│   │   ├── ProtectedRoute.jsx
-│   │   └── ...
+│   │   ├── LoadingScreen.jsx       ✅ Implemented
+│   │   ├── ProtectedRoute.jsx      ✅ Implemented
+│   │   ├── WordSelectionPhase.jsx  ✅ Implemented (voting + custom words)
+│   │   ├── PerformerSelectionPhase.jsx ✅ Implemented (auto-suggest rotation)
+│   │   ├── WordRevealPhase.jsx     ✅ Implemented (performer + guess input)
+│   │   ├── QuickScorePhase.jsx     ✅ Implemented (auto-score + manual confirm)
+│   │   ├── ScoreBoard.jsx          ✅ Implemented (team + individual scores)
+│   │   └── Timer.jsx               ✅ Implemented (countdown + wake lock)
 │   ├── pages/              # Page components
-│   │   ├── HomePage.jsx
-│   │   ├── AuthPage.jsx
-│   │   ├── DashboardPage.jsx
-│   │   ├── CreateGamePage.jsx
-│   │   ├── GameLobbyPage.jsx
-│   │   ├── GamePlayPage.jsx
-│   │   └── ...
+│   │   ├── HomePage.jsx            ✅ Implemented (landing page)
+│   │   ├── AuthPage.jsx            ✅ Implemented (sign in/up)
+│   │   ├── DashboardPage.jsx       ✅ Implemented (user stats)
+│   │   ├── CreateGamePage.jsx      ✅ Implemented (game settings)
+│   │   ├── JoinGamePage.jsx        ✅ Implemented (enter code)
+│   │   ├── GameLobbyPage.jsx       ✅ Implemented (player list + start)
+│   │   └── GamePlayPage.jsx        ✅ Implemented (main game orchestrator)
 │   ├── services/           # External services
-│   │   └── firebase.js
+│   │   └── firebase.js             ✅ Implemented (auth, game, user functions)
 │   ├── stores/             # Zustand state management
-│   │   ├── authStore.js
-│   │   └── gameStore.js
+│   │   ├── authStore.js            ✅ Implemented
+│   │   └── gameStore.js            ✅ Implemented
 │   ├── data/               # Static data
-│   │   ├── wordPacks.js    # 100 funny words
-│   │   └── achievements.js
+│   │   ├── wordPacks.js            ✅ Implemented (100 words)
+│   │   └── achievements.js         ✅ Implemented (15 achievements)
 │   ├── styles/             # CSS files
-│   │   └── global.css
-│   ├── App.jsx             # Main app component
-│   └── main.jsx            # Entry point
+│   │   └── global.css              ✅ Implemented
+│   ├── App.jsx             ✅ Implemented (routing)
+│   └── main.jsx            ✅ Implemented (entry point)
 ├── public/                 # Static assets
-├── functions/              # Firebase Cloud Functions
 ├── package.json
-├── vite.config.js
+├── vite.config.js          ✅ Configured (PWA settings)
 └── README.md
 ```
 
 ## 🎮 How to Play
 
 ### For Hosts:
-1. Sign in and click "Create Game"
-2. Configure settings (timer, word packs)
-3. Share the game code/link with friends
-4. Wait for players to join
-5. Start the game when ready
+1. Sign in (email/password or Google)
+2. Click "Create Game"
+3. Configure settings:
+   - Timer duration (30-120 seconds)
+   - Word packs (Classic is free)
+   - Allow/disallow custom words
+4. Share the 6-character game code with friends
+5. Wait for at least 4 players to join
+6. Click "Start Game" when ready
+7. Click "Start Round X →" to begin each round
+8. Click "End Game" when finished playing
 
 ### For Players:
-1. Click the shared link or enter game code
-2. Enter your name
-3. Wait in lobby for host to start
-4. Get assigned to a team
-5. Take turns selecting words and performing!
+1. Click "Join Game" or use the shared link
+2. Enter the game code (e.g., ABC123)
+3. Enter your name
+4. Wait in lobby for host to start
+5. Get assigned to Team A or Team B
+6. Follow game flow:
+   - **If your team selects the word:** Vote on words or add custom ones
+   - **If you're the performer:** Click "I'm Ready", act out the word when it appears
+   - **If you're guessing:** Type your guesses in the text field and submit
 
-### Game Flow:
-1. **Word Selection** (Team A) + **Performer Selection** (Team B) happen in parallel
-2. Performer gets ready (3-2-1 countdown)
-3. Word reveals on performer's screen
-4. Timer starts (visible to all)
-5. Team guesses the word
-6. **Quick-score** - First team member taps Yes/No (3-sec undo window)
-7. Teams swap roles
-8. Repeat until game ends
+### Game Flow (Detailed):
 
-## 🛠️ Development
+**Round Start:**
+- Team A selects a word (voting system)
+- Team B selects a performer (auto-suggested for fair rotation)
+- Both happen simultaneously
 
-### Build for production:
-```bash
-npm run build
+**Performance Phase:**
+- Performer clicks "I'm Ready"
+- 3-2-1 countdown
+- Word appears fullscreen on performer's device (with anti-cheat protection)
+- Timer starts counting down (visible to all)
+- Guessing team members type guesses
+- When correct word typed → timer stops, point awarded automatically
+
+**Scoring Phase:**
+- If word was typed: Shows "Point Scored!" with player's name
+- If timer expired: Word-selecting team confirms if it was guessed verbally
+- Undo window (3 seconds) for manual confirmations
+
+**Round Complete:**
+- Shows which team got the point
+- Reveals the word to everyone
+- Shows current team scores
+- Host clicks "Start Round X →" to continue
+
+**Game End:**
+- Shows team winner
+- Individual player rankings with medals (🥇🥈🥉)
+- Total rounds played
+- Option to play again or return to dashboard
+
+## 🔧 Firebase Configuration
+
+### Database Schema
+
+**Games Collection** (`/games/{gameId}`):
+```javascript
+{
+  gameId: string,               // 6-character code (e.g., "ABC123")
+  hostId: string,               // User ID of host
+  status: 'lobby' | 'playing' | 'finished',
+  settings: {
+    timer: number,              // Duration in seconds (30-120)
+    wordPacks: string[],        // Array of pack IDs (e.g., ['classic'])
+    allowCustomWords: boolean,  // Can players add custom words?
+    maxPlayers: 20,
+    rounds: number | 'unlimited'
+  },
+  players: {
+    [userId]: {
+      name: string,             // Player's display name
+      team: 'teamA' | 'teamB',  // Assigned team
+      isActive: boolean,
+      joinedAt: timestamp
+    }
+  },
+  teams: {
+    teamA: string[],            // Array of user IDs
+    teamB: string[]
+  },
+  currentRound: number,         // Current round number (starts at 1)
+  scores: {
+    teamA: number,              // Team A's score
+    teamB: number               // Team B's score
+  },
+  playerPoints: {
+    [userId]: number            // Individual player points
+  },
+  currentRoundData: {
+    wordSelectingTeam: 'teamA' | 'teamB',
+    performingTeam: 'teamA' | 'teamB',
+    wordOptions: string[],      // Words available for voting
+    votes: { [userId]: string }, // User votes
+    selectedWord: string,       // Final word selected
+    performerId: string,        // User ID of performer
+    wordRevealed: boolean,      // Has word been shown?
+    timerStartedAt: timestamp,  // When timer started
+    correctlyGuessed: boolean,  // Was word typed correctly?
+    guessedBy: string,          // User ID who guessed
+    guessedByName: string,      // Name of person who guessed
+    guessedByTeam: string,      // Team of person who guessed
+    guesses: {                  // All guesses submitted
+      [userId]: [{
+        guess: string,
+        timestamp: string,
+        playerName: string
+      }]
+    },
+    scored: boolean,            // Final score result
+    scoredBy: string,           // Who confirmed the score
+    scoredByName: string
+  },
+  gamePhase: 'setup' | 'wordSelection' | 'performing' | 'scoring' | 'roundComplete' | 'finished',
+  createdAt: timestamp,
+  updatedAt: timestamp
+}
 ```
 
-### Deploy to Firebase:
-```bash
-npm run deploy
+**Users Collection** (`/users/{userId}`):
+```javascript
+{
+  uid: string,
+  email: string,
+  displayName: string,
+  photoURL: string,
+  gamesPlayed: number,
+  gamesWon: number,
+  totalPoints: number,
+  createdAt: timestamp
+}
 ```
 
-### Environment Variables
+### Firestore Security Rules
 
-Create a `.env` file in the `/game` directory:
-
-```env
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_STRIPE_PUBLIC_KEY=your_stripe_public_key
-```
-
-## 🔧 Configuration
-
-### Firebase Security Rules
-
-**Firestore Rules** (`firestore.rules`):
 ```javascript
 rules_version = '2';
 service cloud.firestore {
@@ -190,152 +283,113 @@ service cloud.firestore {
 
     // Games
     match /games/{gameId} {
-      allow read: if true;
+      allow read: if true;  // Everyone can read games they have the code for
       allow create: if request.auth != null;
-      allow update: if request.auth != null;
+      allow update: if request.auth != null;  // Any authenticated user can update
       allow delete: if request.auth != null &&
-        resource.data.hostId == request.auth.uid;
-    }
-
-    // Word Packs
-    match /wordPacks/{packId} {
-      allow read: if true;
-      allow write: if request.auth != null &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+        resource.data.hostId == request.auth.uid;  // Only host can delete
     }
   }
 }
 ```
 
-### Firebase Cloud Functions
+## 🐛 Known Issues & Recent Fixes
 
-Set up cloud functions for:
-- Stripe checkout session creation
-- Subscription verification
-- Monthly free games reset
-- Leaderboard calculations
+### ✅ Fixed Issues:
+1. ✅ **Performer not seeing word** - Timer was covering the word display (z-index conflict)
+2. ✅ **Timer not counting down** - Timer wasn't starting after performer countdown
+3. ✅ **Wrong team getting points** - Scoring logic was reversed
+4. ✅ **Guess input disappearing after Round 1** - `correctlyGuessed` flag not cleared
+5. ✅ **Round number showing wrong value** - Display logic fixed
+6. ✅ **Performer could guess** - Added `!isPerformer` check to guess input
+7. ✅ **Custom words not syncing** - Now stored in Firebase and synced to all players
+8. ✅ **No "Start Next Round" button** - Added manual round control for host
+9. ✅ **Word not shown after round ends** - Added word reveal in round complete screen
 
-## 📊 Database Schema
+### 🚧 Current Limitations:
+- Screenshots cannot be fully prevented (OS-level limitation on web apps)
+- Google Sign-In may have CORS issues in development (use Email/Password instead)
+- Screen wake lock may not work on all browsers
+- Maximum 20 players per game (Firebase real-time limit)
 
-### Users Collection
-```javascript
-{
-  uid: string,
-  email: string,
-  displayName: string,
-  photoURL: string,
-  level: number,
-  xp: number,
-  gamesPlayed: number,
-  gamesWon: number,
-  totalPoints: number,
-  achievements: string[],
-  isPremium: boolean,
-  freeGamesRemaining: number,
-  freeGamesResetDate: timestamp,
-  subscriptionStatus: 'free' | 'premium',
-  subscriptionEndDate: timestamp,
-  referralCode: string,
-  customWordPacks: string[]
-}
-```
+## 🎯 TODO - Features Not Yet Implemented
 
-### Games Collection
-```javascript
-{
-  gameId: string,
-  hostId: string,
-  status: 'lobby' | 'playing' | 'finished',
-  settings: {
-    timer: number,
-    wordPacks: string[],
-    allowCustomWords: boolean,
-    maxPlayers: number,
-    rounds: number | 'unlimited'
-  },
-  players: {
-    [userId]: {
-      userId: string,
-      name: string,
-      team: 'teamA' | 'teamB',
-      isActive: boolean
-    }
-  },
-  teams: {
-    teamA: string[],
-    teamB: string[]
-  },
-  currentRound: number,
-  scores: {
-    teamA: number,
-    teamB: number
-  },
-  createdAt: timestamp,
-  updatedAt: timestamp
-}
-```
+### High Priority:
+- [ ] Stripe payment integration
+- [ ] Subscription management page
+- [ ] Free games limit enforcement (currently no limit)
+- [ ] Profile page with settings
+- [ ] Leaderboard page
+- [ ] Game history tracking
 
-## 🎯 TODO - Remaining Features to Implement
+### Medium Priority:
+- [ ] Achievements system (UI complete, logic not connected)
+- [ ] Levels & XP progression
+- [ ] Premium word packs (Movies, Animals, Pop Culture, 18+)
+- [ ] Friend system
+- [ ] Referral system
 
-The foundation is built! Here's what still needs to be completed:
+### Low Priority:
+- [ ] Share game highlights
+- [ ] Tournament mode
+- [ ] Daily challenges
+- [ ] Admin panel for word pack management
+- [ ] Email notifications
+- [ ] Push notifications (PWA)
 
-### High Priority Pages:
-- [ ] DashboardPage.jsx - User dashboard with stats
-- [ ] CreateGamePage.jsx - Game creation form
-- [ ] JoinGamePage.jsx - Join via code/link
-- [ ] GameLobbyPage.jsx - Pre-game lobby
-- [ ] GamePlayPage.jsx - Main game interface (CRITICAL!)
-- [ ] ProfilePage.jsx - User profile & settings
-- [ ] LeaderboardPage.jsx - Global rankings
-- [ ] SubscriptionPage.jsx - Stripe checkout
-- [ ] AdminPage.jsx - Word pack management
-
-### Game Components:
-- [ ] WordSelectionPhase.jsx - Voting interface
-- [ ] PerformerPhase.jsx - Word reveal & timer
-- [ ] ScoringPhase.jsx - Quick-score UI
-- [ ] TeamDisplay.jsx - Team roster
-- [ ] ScoreBoard.jsx - Live scores
-- [ ] Timer.jsx - Countdown with screen wake lock
-
-### Additional Components:
-- [ ] AchievementToast.jsx - Achievement unlock popup
-- [ ] LevelUpModal.jsx - Level up celebration
-- [ ] ShareModal.jsx - Share game highlights
-- [ ] FreeGamesWarning.jsx - Free tier limit warning
-
-### Cloud Functions:
-- [ ] Create Firebase Functions for Stripe integration
+### Cloud Functions Needed:
+- [ ] Stripe webhook handler
 - [ ] Monthly free games reset cron job
-- [ ] Leaderboard update triggers
+- [ ] User cleanup (delete inactive accounts)
+- [ ] Leaderboard calculation
 
-## 🤝 Contributing
+## 🛠️ Development
 
-This is a closed-source project, but feedback is welcome!
+### Build for production:
+```bash
+npm run build
+```
 
-## 📝 License
+### Deploy to Firebase:
+```bash
+firebase deploy
+```
 
-All rights reserved © 2024
-
-## 🐛 Known Issues
-
-- [ ] Screen wake lock may not work on all browsers
-- [ ] iOS Safari may have audio delay for buzzer
-- [ ] Need to test with 20+ simultaneous players
+### Development Tips:
+- Use browser DevTools console to see debug logs
+- Check Firebase console for database updates
+- Test with multiple browser windows/devices
+- Use incognito mode to test multiple players on same machine
 
 ## 💡 Future Enhancements
 
-- [ ] Daily challenges
-- [ ] Tournament mode
-- [ ] Picture charades (drawing)
-- [ ] AI performance judge
-- [ ] Video highlights
-- [ ] More word packs (holidays, trending, etc.)
+- Picture charades (drawing mode)
+- Video recording of performances
+- AI performance judge
+- More word pack categories
+- Custom game modes (speed rounds, sudden death, etc.)
+- Team chat during gameplay
+- Replay system
+- Statistics dashboard with charts
 
 ## 📞 Support
 
-For issues or questions, contact: [your-email@example.com]
+For issues or questions, create an issue in the repository.
 
 ---
 
-Built with ❤️ using React, Firebase, and Stripe
+**Built with:**
+- ⚛️ React 18
+- 🔥 Firebase (Auth, Firestore, Hosting)
+- 💳 Stripe (planned)
+- ⚡ Vite
+- 🎨 Framer Motion
+- 🎊 React Confetti
+
+**Current Version:** Beta 1.0
+**Last Updated:** January 2025
+**Status:** Core gameplay complete, monetization pending
+
+---
+
+🎭 **Ready to play charades like never before!** 🎉

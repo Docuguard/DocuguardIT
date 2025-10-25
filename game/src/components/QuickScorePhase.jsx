@@ -15,11 +15,56 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
   const selectedWord = game?.currentRoundData?.selectedWord;
   const wasGuessedCorrectly = game?.currentRoundData?.correctlyGuessed;
   const guessedByName = game?.currentRoundData?.guessedByName;
+  const guessedByTeam = game?.currentRoundData?.guessedByTeam;
 
-  // Listen for score from Firebase
+  // Debug log on mount
   useEffect(() => {
-    if (game?.currentRoundData?.scored !== undefined && scored === null) {
-      setScored(game.currentRoundData.scored);
+    console.log('📊 QuickScorePhase loaded:');
+    console.log(`   Word-selecting team: ${wordSelectingTeam}`);
+    console.log(`   Guessing team: ${guessingTeam}`);
+    console.log(`   Was guessed correctly: ${wasGuessedCorrectly}`);
+    console.log(`   Guessed by: ${guessedByName} (${guessedByTeam})`);
+  }, []);
+
+  // Auto-score if word was typed correctly (skip confirmation)
+  useEffect(() => {
+    if (wasGuessedCorrectly && scored === null && game?.currentRoundData?.scored === undefined) {
+      // Word was typed correctly - auto-award point to guessing team
+      const autoScore = async () => {
+        try {
+          // Set scored=true because word was guessed correctly
+          await updateGame(game.gameId, {
+            'currentRoundData.scored': true,
+            'currentRoundData.scoredBy': 'auto',
+            'currentRoundData.scoredByName': guessedByName
+          });
+
+          setScored(true);
+          setScoredBy('auto');
+          setCanUndo(false); // No undo for auto-scoring
+          toast.success(`🎉 ${guessedByName} guessed it! Point to Team ${guessingTeam === 'teamA' ? 'A' : 'B'}!`);
+
+          // Finalize score after brief delay
+          setTimeout(async () => {
+            await finalizeScoreWithValue(true); // true = word was guessed
+          }, 2000);
+        } catch (error) {
+          console.error('Error auto-scoring:', error);
+        }
+      };
+
+      autoScore();
+    }
+  }, [wasGuessedCorrectly]);
+
+  // Listen for score from Firebase (when manually scored, not auto-scored)
+  useEffect(() => {
+    if (game?.currentRoundData?.scored !== undefined &&
+        game?.currentRoundData?.scoredBy !== 'auto' &&
+        scored === null) {
+      const scoreValue = game.currentRoundData.scored;
+
+      setScored(scoreValue);
       setScoredBy(game.currentRoundData.scoredBy);
       setCanUndo(true);
 
@@ -28,7 +73,7 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
         setUndoTimeLeft(prev => {
           if (prev <= 1) {
             clearInterval(undoInterval);
-            finalizeScore();
+            finalizeScoreWithValue(scoreValue); // Use captured value
             return 0;
           }
           return prev - 1;
@@ -37,7 +82,7 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
 
       return () => clearInterval(undoInterval);
     }
-  }, [game?.currentRoundData?.scored]);
+  }, [game?.currentRoundData?.scored, game?.currentRoundData?.scoredBy]);
 
   const handleQuickScore = async (didScore) => {
     if (scored !== null) return;
@@ -78,7 +123,7 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
     }
   };
 
-  const finalizeScore = async () => {
+  const finalizeScoreWithValue = async (scoreValue) => {
     setCanUndo(false);
 
     try {
@@ -92,33 +137,41 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
       };
 
       // CORRECT SCORING LOGIC:
-      // If scored = true: Word was guessed correctly → GUESSING team gets point
-      // If scored = false: Word was NOT guessed → WORD-SELECTING team gets point
-      if (scored) {
+      // If scoreValue = true: Word was guessed correctly → GUESSING team gets point
+      // If scoreValue = false: Word was NOT guessed → WORD-SELECTING team gets point
+      if (scoreValue) {
         // Guessing team got it right!
         if (guessingTeam === 'teamA') {
           updates['scores.teamA'] = currentScoreA + 1;
+          console.log(`✓ Team A (guessing team) gets point! ${currentScoreA} → ${currentScoreA + 1}`);
         } else {
           updates['scores.teamB'] = currentScoreB + 1;
+          console.log(`✓ Team B (guessing team) gets point! ${currentScoreB} → ${currentScoreB + 1}`);
         }
       } else {
         // Guessing team failed → Word-selecting team gets point
         if (wordSelectingTeam === 'teamA') {
           updates['scores.teamA'] = currentScoreA + 1;
+          console.log(`✓ Team A (word-selecting team) gets point! ${currentScoreA} → ${currentScoreA + 1}`);
         } else {
           updates['scores.teamB'] = currentScoreB + 1;
+          console.log(`✓ Team B (word-selecting team) gets point! ${currentScoreB} → ${currentScoreB + 1}`);
         }
       }
 
       await updateGame(game.gameId, updates);
 
-      // Wait a moment then complete
-      setTimeout(() => {
-        onComplete && onComplete();
-      }, 2000);
+      // DO NOT auto-advance - user will manually start next round
+      // setTimeout(() => {
+      //   onComplete && onComplete();
+      // }, 2000);
     } catch (error) {
       console.error('Error finalizing score:', error);
     }
+  };
+
+  const finalizeScore = async () => {
+    await finalizeScoreWithValue(scored);
   };
 
   const getPlayerName = (uid) => {
@@ -297,8 +350,10 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
     );
   }
 
-  // Score finalized
-  if (scored !== null && !canUndo) {
+  // Score finalized - show manual "Start Next Round" button
+  if (scored !== null && !canUndo && game?.gamePhase === 'roundComplete') {
+    const teamThatScored = scored ? guessingTeam : wordSelectingTeam;
+
     return (
       <div style={{
         background: 'white',
@@ -311,6 +366,7 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
           padding: '2rem',
           background: scored ? '#d1fae5' : '#fee2e2',
           borderRadius: 'var(--radius-lg)',
+          marginBottom: '1.5rem'
         }}>
           <div style={{ fontSize: '4rem', marginBottom: '0.5rem' }}>
             {scored ? '🎉' : '💪'}
@@ -318,17 +374,49 @@ const QuickScorePhase = ({ game, userId, onComplete }) => {
           <div style={{
             fontSize: '1.5rem',
             fontWeight: 700,
-            color: scored ? '#065f46' : '#991b1b'
+            color: scored ? '#065f46' : '#991b1b',
+            marginBottom: '0.5rem'
           }}>
-            {scored ? 'Point Scored!' : 'Better Luck Next Round!'}
+            {scored ? 'Point Scored!' : 'No Point This Round'}
+          </div>
+          <div style={{
+            fontSize: '1rem',
+            color: scored ? '#065f46' : '#991b1b',
+            opacity: 0.9
+          }}>
+            Team {teamThatScored === 'teamA' ? 'A' : 'B'} gets the point!
+          </div>
+          {wasGuessedCorrectly && (
+            <div style={{
+              marginTop: '0.75rem',
+              fontSize: '0.875rem',
+              color: '#065f46',
+              fontWeight: 600
+            }}>
+              ✓ {guessedByName} typed it correctly!
+            </div>
+          )}
+        </div>
+
+        <div style={{
+          marginBottom: '1.5rem',
+          padding: '1rem',
+          background: 'var(--bg-tertiary)',
+          borderRadius: 'var(--radius)',
+          fontSize: '0.875rem'
+        }}>
+          <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Round Complete</div>
+          <div style={{ color: 'var(--text-secondary)' }}>
+            Team A: {game.scores?.teamA || 0} | Team B: {game.scores?.teamB || 0}
           </div>
         </div>
-        <div style={{
-          marginTop: '1.5rem',
-          color: 'var(--text-secondary)'
-        }}>
-          Starting next round...
-        </div>
+
+        <button
+          onClick={() => onComplete && onComplete()}
+          className="btn btn-primary btn-full btn-lg"
+        >
+          Start Next Round →
+        </button>
       </div>
     );
   }

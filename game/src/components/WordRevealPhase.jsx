@@ -87,11 +87,21 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
 
       // Check if guess is correct
       if (guess.toLowerCase() === selectedWord.toLowerCase()) {
-        // Mark as correctly guessed!
+        const guesserTeam = game.players[userId].team;
+        const guesserName = game.players[userId].name;
+
+        console.log(`🎯 CORRECT GUESS by ${guesserName} from ${guesserTeam}`);
+        console.log(`   Word: "${selectedWord}"`);
+        console.log(`   Guesser team: ${guesserTeam}`);
+        console.log(`   Word-selecting team: ${wordSelectingTeam}`);
+
+        // Mark as correctly guessed and STOP TIMER by moving to scoring
         await updateGame(game.gameId, {
           'currentRoundData.correctlyGuessed': true,
           'currentRoundData.guessedBy': userId,
-          'currentRoundData.guessedByName': game.players[userId].name
+          'currentRoundData.guessedByName': guesserName,
+          'currentRoundData.guessedByTeam': guesserTeam,
+          gamePhase: 'scoring' // Stop timer and go to scoring
         });
       }
     } catch (error) {

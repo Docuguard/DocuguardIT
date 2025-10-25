@@ -30,7 +30,8 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
       setCountdown(prev => {
         if (prev <= 1) {
           clearInterval(countdownInterval);
-          setWordRevealed(true);
+          // After countdown, reveal word and start timer for everyone
+          revealWordAndStartTimer();
           return 0;
         }
         return prev - 1;
@@ -38,10 +39,8 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
     }, 1000);
   };
 
-  // Anyone from Team A can tap to reveal word on performer's screen
-  const handleRevealWord = async () => {
-    if (myTeam !== wordSelectingTeam) return;
-
+  // Reveal word and start timer (called after performer countdown OR by word-selecting team)
+  const revealWordAndStartTimer = async () => {
     try {
       await updateGame(game.gameId, {
         'currentRoundData.wordRevealed': true,
@@ -53,6 +52,12 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
     } catch (error) {
       console.error('Error revealing word:', error);
     }
+  };
+
+  // Anyone from Team A can tap to reveal word on performer's screen
+  const handleRevealWord = async () => {
+    if (myTeam !== wordSelectingTeam) return;
+    await revealWordAndStartTimer();
   };
 
   // Listen for word reveal from Firebase

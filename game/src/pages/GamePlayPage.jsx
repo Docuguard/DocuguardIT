@@ -512,6 +512,32 @@ const GamePlayPage = () => {
               )}
             </div>
 
+            {/* Show the word that was selected */}
+            <div style={{
+              marginBottom: '1.5rem',
+              padding: '1.5rem',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderRadius: 'var(--radius-lg)',
+              color: 'white',
+              textAlign: 'center'
+            }}>
+              <div style={{
+                fontSize: '0.875rem',
+                opacity: 0.9,
+                marginBottom: '0.5rem',
+                fontWeight: 600
+              }}>
+                The word was:
+              </div>
+              <div style={{
+                fontSize: '1.75rem',
+                fontWeight: 800,
+                textShadow: '0 2px 4px rgba(0,0,0,0.2)'
+              }}>
+                {game.currentRoundData?.selectedWord || 'N/A'}
+              </div>
+            </div>
+
             <div style={{
               marginBottom: '1.5rem',
               padding: '1rem',

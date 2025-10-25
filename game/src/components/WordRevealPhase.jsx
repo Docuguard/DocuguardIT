@@ -9,12 +9,50 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
   const [timerStarted, setTimerStarted] = useState(false);
   const [guessInput, setGuessInput] = useState('');
   const [myGuesses, setMyGuesses] = useState([]);
+  const [windowFocused, setWindowFocused] = useState(true); // Anti-cheat: track if window is focused
 
   const selectedWord = game?.currentRoundData?.selectedWord;
   const performerId = game?.currentRoundData?.performerId;
   const isPerformer = userId === performerId;
   const myTeam = game?.players?.[userId]?.team;
   const wordSelectingTeam = game?.currentRoundData?.wordSelectingTeam;
+
+  // Anti-cheat: Hide word when window loses focus (prevents screenshot attempts on some devices)
+  useEffect(() => {
+    if (!isPerformer) return;
+
+    const handleFocus = () => setWindowFocused(true);
+    const handleBlur = () => setWindowFocused(false);
+
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('blur', handleBlur);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, [isPerformer]);
+
+  // Anti-cheat: Prevent copy/paste/cut events on performer view
+  useEffect(() => {
+    if (!isPerformer || !wordRevealed) return;
+
+    const preventCopy = (e) => {
+      e.preventDefault();
+      console.warn('🚫 Copying is disabled for the performer view');
+      return false;
+    };
+
+    document.addEventListener('copy', preventCopy);
+    document.addEventListener('cut', preventCopy);
+    document.addEventListener('contextmenu', preventCopy); // Disable right-click
+
+    return () => {
+      document.removeEventListener('copy', preventCopy);
+      document.removeEventListener('cut', preventCopy);
+      document.removeEventListener('contextmenu', preventCopy);
+    };
+  }, [isPerformer, wordRevealed]);
 
   // Debug logging
   useEffect(() => {
@@ -227,8 +265,30 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 9998,
-        padding: '2rem'
+        padding: '2rem',
+        userSelect: 'none', // Anti-cheat: Prevent text selection
+        WebkitUserSelect: 'none', // Safari
+        MozUserSelect: 'none', // Firefox
+        msUserSelect: 'none' // IE/Edge
       }}>
+        {/* Anti-cheat: Blur overlay when window loses focus */}
+        {!windowFocused && (
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'rgba(0,0,0,0.95)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10001,
+            fontSize: '1.5rem',
+            color: 'white',
+            fontWeight: 700
+          }}>
+            ⚠️ Return to the app to see the word
+          </div>
+        )}
+
         {/* Timer in top-right corner */}
         <div style={{
           position: 'absolute',
@@ -244,6 +304,21 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
           />
         </div>
 
+        {/* Anti-cheat watermark */}
+        <div style={{
+          position: 'absolute',
+          bottom: '2rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontSize: '0.75rem',
+          color: 'rgba(255,255,255,0.3)',
+          fontWeight: 600,
+          pointerEvents: 'none',
+          userSelect: 'none'
+        }}>
+          PERFORMER VIEW • {game.players[userId]?.name || 'Player'}
+        </div>
+
         {/* Word display */}
         <div style={{
           fontSize: 'clamp(2rem, 10vw, 6rem)',
@@ -252,7 +327,9 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
           textAlign: 'center',
           lineHeight: 1.2,
           textShadow: '0 4px 20px rgba(0,0,0,0.3)',
-          wordBreak: 'break-word'
+          wordBreak: 'break-word',
+          pointerEvents: 'none', // Anti-cheat: Prevent interaction
+          userSelect: 'none' // Anti-cheat: Prevent text selection
         }}>
           {selectedWord}
         </div>
@@ -260,7 +337,8 @@ const WordRevealPhase = ({ game, userId, onTimerComplete }) => {
           marginTop: '2rem',
           fontSize: '1.125rem',
           color: 'rgba(255,255,255,0.9)',
-          fontWeight: 600
+          fontWeight: 600,
+          userSelect: 'none' // Anti-cheat: Prevent text selection
         }}>
           🎭 Act it out!
         </div>
